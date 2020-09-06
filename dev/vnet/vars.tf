@@ -90,7 +90,9 @@ variable vm_2_password {
 variable nsg_name {
   default = "ter-nsg"
 }
-
+variable nsg1_name {
+  default = "vm2-nsg"
+}
 variable my_ip {
   default = "103.148.21.226"
 }

@@ -21,6 +21,7 @@ module "vnet" {
   resource_group_name         = var.resource_group_name
   vnet_ip_range               = var.vnet_ip_range
   nsg_name                    = var.nsg_name
+  nsg1_name		      = var.nsg1_name
   my_ip                       = var.my_ip
   pub_subnet_name             = var.pub_subnet_name
   pub_subnet_ip_range         = var.pub_subnet_ip_range

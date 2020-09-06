@@ -19,6 +19,10 @@ variable nsg_name {
   description = "Name of the Network security group"
 }
 
+variable nsg1_name {
+  description = "Name of the Network security group "
+}
+
 variable my_ip {
   description = "Public IP of your ISP"
 }
