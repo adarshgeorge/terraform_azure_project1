@@ -17,5 +17,5 @@ container_name=statefiles
 project_to_init_list=vnet
 ```
 
-![alt HelloWorld](https://raw.githubusercontent.com/adarshgeorge/adarshgeorge/terraform_azure_project1/master/png/storage.png)
+![alt Storage](https://raw.githubusercontent.com/adarshgeorge/adarshgeorge/terraform_azure_project1/master/png/storage1.png)
 
