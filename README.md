@@ -575,6 +575,57 @@ See "man sudo_root" for details.
 
 azureuser@vm2:~$ sudo -i
 root@vm2:~#
+root@vm2:~# apt install apache2
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  grub-pc-bin linux-headers-4.15.0-115
+Use 'apt autoremove' to remove them.
+The following additional packages will be installed:
+  apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap
+  liblua5.2-0
+Suggested packages:
+  www-browser apache2-doc apache2-suexec-pristine | apache2-suexec-custom
+The following NEW packages will be installed:
+  apache2 apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap
+  liblua5.2-0
+0 upgraded, 9 newly installed, 0 to remove and 6 not upgraded.
+Need to get 1712 kB of archives.
+After this operation, 6920 kB of additional disk space will be used.
+Do you want to continue? [Y/n] n
+Abort.
+root@vm2:~#
 ```
 
+MySQL connection from VM1 to VM2
+```
+root@vm1:~# mysql -u azure -p -h 10.0.3.5 -P 3306
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 5
+Server version: 5.7.31-0ubuntu0.18.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+Done!
+
+
+To remove the infra
+
+```
+$ terraform destroy
+module.vnet.azurerm_resource_group.resource_group: Destruction complete after 1m51s
+
+Destroy complete! Resources: 12 destroyed.
+[ec2-user@ip-172-31-4-240 vnet]$
+```
 **That's it**
