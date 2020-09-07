@@ -116,10 +116,16 @@ $
 Now execute 
 ```
 $ terraform plan
+Acquiring state lock. This may take a few moments...
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
 
+module.vnet.azurerm_resource_group.resource_group: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg]
+module.vnet.azurerm_virtual_network.vnet: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet]
+module.vnet.azurerm_subnet.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-priv]
+module.vnet.azurerm_network_interface.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic2]
+module.vnet.azurerm_virtual_machine.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm2]
 
 ------------------------------------------------------------------------
 
@@ -188,7 +194,16 @@ Terraform will perform the following actions:
   + resource "azurerm_network_security_group" "nsg" {
       + id                  = (known after apply)
       + location            = "northeurope"
-      + name                = "ter-nsg"
+      + name                = "vnet-nsg"
+      + resource_group_name = "terraform_rg"
+      + security_rule       = (known after apply)
+    }
+
+  # module.vnet.azurerm_network_security_group.nsg1 will be created
+  + resource "azurerm_network_security_group" "nsg1" {
+      + id                  = (known after apply)
+      + location            = "northeurope"
+      + name                = "vm2-nsg"
       + resource_group_name = "terraform_rg"
       + security_rule       = (known after apply)
     }
@@ -201,12 +216,28 @@ Terraform will perform the following actions:
       + direction                   = "Inbound"
       + id                          = (known after apply)
       + name                        = "allow_myip"
-      + network_security_group_name = "ter-nsg"
+      + network_security_group_name = "vnet-nsg"
       + priority                    = 110
       + protocol                    = "*"
       + resource_group_name         = "terraform_rg"
       + source_address_prefix       = "103.148.21.226"
       + source_port_range           = "*"
+    }
+
+  # module.vnet.azurerm_network_security_rule.allow_web_ip will be created
+  + resource "azurerm_network_security_rule" "allow_web_ip" {
+      + access                      = "Allow"
+      + destination_address_prefix  = "*"
+      + destination_port_range      = "3306"
+      + direction                   = "Inbound"
+      + id                          = (known after apply)
+      + name                        = "allow_web_ip"
+      + network_security_group_name = "vm2-nsg"
+      + priority                    = 100
+      + protocol                    = "*"
+      + resource_group_name         = "terraform_rg"
+      + source_address_prefix       = "10.0.2.5"
+      + source_port_range           = "3306"
     }
 
   # module.vnet.azurerm_public_ip.vm_pub_ip will be created
@@ -256,6 +287,13 @@ Terraform will perform the following actions:
       + name                                           = "subnet-pub"
       + resource_group_name                            = "terraform_rg"
       + virtual_network_name                           = "ter-vnet"
+    }
+
+  # module.vnet.azurerm_subnet_network_security_group_association.nsg1_subnet_association will be created
+  + resource "azurerm_subnet_network_security_group_association" "nsg1_subnet_association" {
+      + id                        = (known after apply)
+      + network_security_group_id = (known after apply)
+      + subnet_id                 = (known after apply)
     }
 
   # module.vnet.azurerm_subnet_network_security_group_association.nsg_subnet_association will be created
@@ -400,7 +438,7 @@ Terraform will perform the following actions:
       + subnet              = (known after apply)
     }
 
-Plan: 12 to add, 0 to change, 0 to destroy.
+Plan: 15 to add, 0 to change, 0 to destroy.
 
 Changes to Outputs:
   + address_space           = [
@@ -411,7 +449,7 @@ Changes to Outputs:
   + id_vnet                 = (known after apply)
   + location_resource_group = "northeurope"
   + my_ip                   = "103.148.21.226"
-  + name_nsg                = "ter-nsg"
+  + name_nsg                = "vnet-nsg"
   + name_resource_group     = "terraform_rg"
   + name_vnet               = "ter-vnet"
 
@@ -420,76 +458,86 @@ Changes to Outputs:
 Note: You didn't specify an "-out" parameter to save this plan, so Terraform
 can't guarantee that exactly these actions will be performed if
 "terraform apply" is subsequently run.
-
-[ec2-user@ip-172-31-4-240 vnet]$
 ```
 
 Finally execute the below command 
 ```
-$ terraform apply
-Acquiring state lock. This may take a few moments...
-
-
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value: yes
-
+[ec2-user@ip-172-31-4-240 vnet]$ terraform apply -auto-approve
+module.vnet.azurerm_resource_group.resource_group: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg]
+module.vnet.azurerm_virtual_network.vnet: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet]
+module.vnet.azurerm_subnet.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-priv]
+module.vnet.azurerm_network_interface.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic2]
+module.vnet.azurerm_virtual_machine.private: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm2]
 module.vnet.azurerm_resource_group.resource_group: Creating...
-module.vnet.azurerm_resource_group.resource_group: Creation complete after 1s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg]
-module.vnet.azurerm_public_ip.vm_pub_ip: Creating...
+module.vnet.azurerm_resource_group.resource_group: Creation complete after 2s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg]
 module.vnet.azurerm_network_security_group.nsg: Creating...
+module.vnet.azurerm_network_security_group.nsg1: Creating...
 module.vnet.azurerm_virtual_network.vnet: Creating...
-module.vnet.azurerm_virtual_network.vnet: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet]
+module.vnet.azurerm_public_ip.vm_pub_ip: Creating...
+module.vnet.azurerm_network_security_group.nsg: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vnet-nsg]
+module.vnet.azurerm_network_security_rule.allow_myip: Creating...
+module.vnet.azurerm_public_ip.vm_pub_ip: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/publicIPAddresses/pubip1]
+module.vnet.azurerm_network_security_group.nsg1: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vm2-nsg]
+module.vnet.azurerm_network_security_rule.allow_web_ip: Creating...
+module.vnet.azurerm_network_security_rule.allow_myip: Creation complete after 2s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vnet-nsg/securityRules/allow_myip]
+module.vnet.azurerm_virtual_network.vnet: Still creating... [10s elapsed]
+module.vnet.azurerm_network_security_rule.allow_web_ip: Creation complete after 3s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vm2-nsg/securityRules/allow_web_ip]
+module.vnet.azurerm_virtual_network.vnet: Creation complete after 16s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet]
 module.vnet.azurerm_subnet.private: Creating...
 module.vnet.azurerm_subnet.public: Creating...
-module.vnet.azurerm_public_ip.vm_pub_ip: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/publicIPAddresses/pubip1]
-module.vnet.azurerm_network_security_group.nsg: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/ter-nsg]
-module.vnet.azurerm_network_security_rule.allow_myip: Creating...
 module.vnet.azurerm_subnet.private: Creation complete after 2s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-priv]
+module.vnet.azurerm_subnet_network_security_group_association.nsg1_subnet_association: Creating...
 module.vnet.azurerm_network_interface.private: Creating...
-module.vnet.azurerm_network_security_rule.allow_myip: Creation complete after 3s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/ter-nsg/securityRules/allow_myip]
-module.vnet.azurerm_subnet.public: Creation complete after 4s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-pub]
+module.vnet.azurerm_subnet.public: Creation complete after 5s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-pub]
 module.vnet.azurerm_network_interface.public: Creating...
 module.vnet.azurerm_subnet_network_security_group_association.nsg_subnet_association: Creating...
-module.vnet.azurerm_network_interface.private: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic2]
-module.vnet.azurerm_virtual_machine.private: Creating...
-module.vnet.azurerm_subnet_network_security_group_association.nsg_subnet_association: Creation complete after 8s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-pub]
+module.vnet.azurerm_subnet_network_security_group_association.nsg1_subnet_association: Creation complete after 5s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-priv]
+module.vnet.azurerm_subnet_network_security_group_association.nsg_subnet_association: Creation complete after 5s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet/subnets/subnet-pub]
+module.vnet.azurerm_network_interface.private: Still creating... [10s elapsed]
 module.vnet.azurerm_network_interface.public: Still creating... [10s elapsed]
-module.vnet.azurerm_network_interface.public: Creation complete after 12s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic1]
+module.vnet.azurerm_network_interface.private: Creation complete after 14s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic2]
+module.vnet.azurerm_virtual_machine.private: Creating...
+module.vnet.azurerm_network_interface.public: Creation complete after 14s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkInterfaces/nic1]
 module.vnet.azurerm_virtual_machine.public: Creating...
 module.vnet.azurerm_virtual_machine.private: Still creating... [10s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [10s elapsed]
 module.vnet.azurerm_virtual_machine.private: Still creating... [20s elapsed]
-module.vnet.azurerm_virtual_machine.private: Creation complete after 20s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm2]
 module.vnet.azurerm_virtual_machine.public: Still creating... [20s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [30s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [30s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [40s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [40s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [50s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [50s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [1m0s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [1m0s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [1m10s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [1m10s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [1m20s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [1m20s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [1m30s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [1m30s elapsed]
+module.vnet.azurerm_virtual_machine.private: Still creating... [1m40s elapsed]
 module.vnet.azurerm_virtual_machine.public: Still creating... [1m40s elapsed]
-module.vnet.azurerm_virtual_machine.public: Creation complete after 1m40s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm1]
+module.vnet.azurerm_virtual_machine.private: Creation complete after 1m44s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm2]
+module.vnet.azurerm_virtual_machine.public: Creation complete after 1m42s [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Compute/virtualMachines/vm1]
 
-Apply complete! Resources: 12 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 15 added, 0 changed, 0 destroyed.
 
 Outputs:
 
 address_space = [
   "10.0.0.0/16",
 ]
-id_nsg = /subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/ter-nsg
+id_nsg = /subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vnet-nsg
 id_resource_group = /subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg
 id_vnet = /subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet
 location_resource_group = northeurope
 my_ip = 103.148.21.226
-name_nsg = ter-nsg
+name_nsg = vnet-nsg
 name_resource_group = terraform_rg
 name_vnet = ter-vnet
-[ec2-user@ip-172-31-4-240 vnet]$
+[
 ```
 
 **Login details of VM1**
@@ -497,48 +545,29 @@ name_vnet = ter-vnet
 Obtain the Public IP of the VM1 from Terraform server.
 ```
 $ az vm list-ip-addresses |grep vm1 -A 10 |grep ipAddress |awk {'print $2'}
-
-"23.102.37.167",
+"13.74.57.61",
 $
 ```
 
 
 Obtain Username and Password from the var.tf
 
-```
-$ cat terraform/dev/vnet/vars.tf  |grep vm_1_user -A 2
-variable vm_1_user {
-   default = "azureuser"
-}
-$
-$ cat terraform/dev/vnet/vars.tf  |grep vm_1_password -A 2
-variable vm_1_password {
-   default = "4YDoL5O8Svw7S2D7g"
-```
+
 **Login details of VM2**
 ```
-$ cat terraform/dev/vnet/vars.tf  |grep vm_2_user -A 2
-variable vm_2_user {
-   default = "azureuser"
-}
-[ec2-user@ip-172-31-4-240 neww]$ cat terraform/dev/vnet/vars.tf  |grep vm_2_password -A 2
-variable vm_2_password {
-   default = "ZfnMqpkScChEX37Pk"
-}
-[ec2-user@ip-172-31-4-240 neww]$ cat terraform/dev/vnet/vars.tf  |grep private_vm2_ip -A 2
-variable private_vm2_ip {
-  default = "10.0.3.5"
-}
-[ec2-user@ip-172-31-4-240 neww]$
-```
-SSH to VM1
-```
-$ ssh azureuser@23.102.37.167
-azureuser@23.102.37.167's password:
+C:\Users\Root>ssh azureuser@52.178.201.46
+The authenticity of host '52.178.201.46 (52.178.201.46)' can't be established.
+ECDSA key fingerprint is SHA256:r2S55dhVh/ACnWn6Os/MpEmubvgaSY3xAbVoH7cuEYw.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '52.178.201.46' (ECDSA) to the list of known hosts.
+azureuser@52.178.201.46's password:
+
+
 To run a command as administrator (user "root"), use "sudo <command>".
 See "man sudo_root" for details.
 
 azureuser@vm1:~$ sudo -i
+root@vm1:~#o -i
 root@vm1:~#
 ```
 SSH from VM1 to VM2
@@ -551,9 +580,9 @@ Welcome to Ubuntu 18.04.5 LTS (GNU/Linux 5.4.0-1023-azure x86_64)
  * Management:     https://landscape.canonical.com
  * Support:        https://ubuntu.com/advantage
 
-  System information as of Sun Sep  6 14:58:22 UTC 2020
+  System information as of Mon Sep  7 08:13:01 UTC 2020
 
-  System load:  0.08              Processes:           117
+  System load:  0.31              Processes:           131
   Usage of /:   4.4% of 28.90GB   Users logged in:     0
   Memory usage: 5%                IP address for eth0: 10.0.3.5
   Swap usage:   0%
@@ -575,31 +604,15 @@ See "man sudo_root" for details.
 
 azureuser@vm2:~$ sudo -i
 root@vm2:~#
-root@vm2:~# apt install apache2
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following packages were automatically installed and are no longer required:
-  grub-pc-bin linux-headers-4.15.0-115
-Use 'apt autoremove' to remove them.
-The following additional packages will be installed:
-  apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap
-  liblua5.2-0
-Suggested packages:
-  www-browser apache2-doc apache2-suexec-pristine | apache2-suexec-custom
-The following NEW packages will be installed:
-  apache2 apache2-bin apache2-data apache2-utils libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap
-  liblua5.2-0
-0 upgraded, 9 newly installed, 0 to remove and 6 not upgraded.
-Need to get 1712 kB of archives.
-After this operation, 6920 kB of additional disk space will be used.
-Do you want to continue? [Y/n] n
-Abort.
-root@vm2:~#
 ```
 
 MySQL connection from VM1 to VM2
 ```
+root@vm1:~# telnet 10.0.3.5 3306
+Trying 10.0.3.5...
+Connected to 10.0.3.5.
+Escape character is '^]'.
+
 root@vm1:~# mysql -u azure -p -h 10.0.3.5 -P 3306
 Enter password:
 Welcome to the MySQL monitor.  Commands end with ; or \g.
@@ -623,9 +636,19 @@ To remove the infra
 
 ```
 $ terraform destroy
-module.vnet.azurerm_resource_group.resource_group: Destruction complete after 1m51s
+Acquiring state lock. This may take a few moments...
+module.vnet.azurerm_resource_group.resource_group: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg]
+module.vnet.azurerm_virtual_network.vnet: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/virtualNetworks/ter-vnet]
+module.vnet.azurerm_network_security_group.nsg1: Refreshing state... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg/providers/Microsoft.Network/networkSecurityGroups/vm2-nsg]
+-
+-
+-
+module.vnet.azurerm_resource_group.resource_group: Still destroying... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg, 40s elapsed]
+module.vnet.azurerm_resource_group.resource_group: Still destroying... [id=/subscriptions/1b0a362f-2b27-4d41-a889-14b3ac922fed/resourceGroups/terraform_rg, 50s elapsed]
+module.vnet.azurerm_resource_group.resource_group: Destruction complete after 52s
 
-Destroy complete! Resources: 12 destroyed.
+Destroy complete! Resources: 15 destroyed.
 [ec2-user@ip-172-31-4-240 vnet]$
+
 ```
 **That's it**
