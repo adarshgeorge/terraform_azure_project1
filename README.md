@@ -548,7 +548,7 @@ name_vnet = ter-vnet
 Obtain the Public IP of the VM1 from Terraform server.
 ```
 $ az vm list-ip-addresses |grep vm1 -A 10 |grep ipAddress |awk {'print $2'}
-"52.169.108.66",
+"52.178.201.46",
 $
 ```
 
