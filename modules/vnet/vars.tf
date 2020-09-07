@@ -4,7 +4,6 @@ variable resource_group_name {
 
 variable resource_group_location {
   description = "Location of the resource_group group"
-  default = "West Europe"
 }
 
 variable vnet_name {
