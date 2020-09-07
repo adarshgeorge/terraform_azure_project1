@@ -15,13 +15,12 @@ terraform/
 │   ├── settings.ini
 │   └── vnet
 │       ├── main.tf
-│       ├── output_og
 │       ├── output.tf
 │       └── vars.tf
 ├── modules
 │   └── vnet
+│       ├── nsg_orgtfbk
 │       ├── nsg.tf
-│       ├── output_og
 │       ├── output.tf
 │       ├── pub_ip.tf
 │       ├── resource_group.tf
@@ -30,10 +29,14 @@ terraform/
 │       ├── vm1.tf
 │       ├── vm2.tf
 │       └── vnet.tf
+├── png
+│   ├── ARM.png
+│   ├── state_file.png
+│   ├── storage1.png
+│   └── test.txt
 └── README.md
 
-4 directories, 17 files
-$
+5 directories, 20 files
 ```
 
 Mention the created storage_accout_name and container_name in the settings.ini. 
