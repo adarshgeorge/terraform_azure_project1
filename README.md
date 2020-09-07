@@ -553,7 +553,7 @@ $
 ```
 
 
-Obtain Username and Password from the var.tf
+Obtain Username and Password of the VM2 from from Terraform server.
 
 
 **Login details of VM2**
