@@ -75,7 +75,7 @@ variable vm_1_user {
 }
 
 variable vm_1_password {
-   default = "4YDoL5O8Svw7S2D7g"
+   default = "Azure@12#"
 }
 
 variable vm_2_user {
@@ -83,12 +83,12 @@ variable vm_2_user {
 }
 
 variable vm_2_password {
-   default = "ZfnMqpkScChEX37Pk"
+   default = "Azure@12#"
 }
 
 
 variable nsg_name {
-  default = "ter-nsg"
+  default = "vnet-nsg"
 }
 variable nsg1_name {
   default = "vm2-nsg"

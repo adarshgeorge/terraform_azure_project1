@@ -30,9 +30,13 @@ resource "azurerm_network_security_rule" "allow_web_ip" {
   access                      = "Allow"
   protocol                    = "*"
   source_port_range           = "3306"
-  destination_port_range      = "*"
+  destination_port_range      = "3306"
   source_address_prefix       = var.private_vm1_ip
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.resource_group.name
   network_security_group_name = azurerm_network_security_group.nsg1.name
 }
+
+
+
+
