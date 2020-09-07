@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description: Init all the terraform project of Lendico's project with a remote shared file and a lock
+# Description: Init all the terraform project with a remote shared file and a lock
 
 # Note that ARM_ACCESS_KEY is a fixed value by terraform at the moment, the binary will look automatically for the env var ARM_ACCESS_KEY
 storage_auth_env_var="ARM_ACCESS_KEY"
