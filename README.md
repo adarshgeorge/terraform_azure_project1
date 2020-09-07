@@ -573,7 +573,7 @@ azureuser@vm1:~$ sudo -i
 root@vm1:~#o -i
 root@vm1:~#
 ```
-SSH from VM1 to VM2
+**SSH from VM1 to VM2**
 ```
 root@vm1:~# ssh azureuser@10.0.3.5
 azureuser@10.0.3.5's password:
@@ -635,7 +635,7 @@ mysql>
 Done!
 
 
-To remove the infra
+**To remove the infra**
 
 ```
 $ terraform destroy
