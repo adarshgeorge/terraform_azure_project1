@@ -29,7 +29,7 @@ resource "azurerm_network_security_rule" "allow_web_ip" {
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "*"
-  source_port_range           = "3306"
+  source_port_range           = "*"
   destination_port_range      = "3306"
   source_address_prefix       = var.private_vm1_ip
   destination_address_prefix  = "*"
